@@ -1,4 +1,4 @@
-use embedded_hal_1::{delay::DelayUs, i2c::I2c};
+use embedded_hal_1::{delay::DelayNs, i2c::I2c};
 
 /// BH1750 Ambient Light Sensor(ALS)
 ///
@@ -53,7 +53,7 @@ where
         self.i2c
     }
 
-    pub fn init(&mut self, config: Config, delay: &mut impl DelayUs) -> Result<(), I2C::Error> {
+    pub fn init(&mut self, config: Config, delay: &mut impl DelayNs) -> Result<(), I2C::Error> {
         // power on
         self.i2c.write(self.address, &[0x01])?;
         // defaults to Continuously H-Resolution Mode

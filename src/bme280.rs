@@ -6,7 +6,7 @@
 //! Pressure resolution: 0.18 Pa
 //! Temperature resolution: 0.01 C
 
-use embedded_hal_1::delay::DelayUs;
+use embedded_hal_1::delay::DelayNs;
 use embedded_hal_1::i2c::I2c;
 
 #[cfg(feature = "serde")]
@@ -270,7 +270,7 @@ where
     }
 
     /// Initializes the BME280
-    pub fn init<D: DelayUs>(&mut self, delay: &mut D) -> Result<(), Error<I2C::Error>> {
+    pub fn init<D: DelayNs>(&mut self, delay: &mut D) -> Result<(), Error<I2C::Error>> {
         self.verify_chip_id()?;
         self.soft_reset(delay)?;
         self.calibrate()?;
@@ -291,7 +291,7 @@ where
         }
     }
 
-    fn soft_reset<D: DelayUs>(&mut self, delay: &mut D) -> Result<(), Error<I2C::Error>> {
+    fn soft_reset<D: DelayNs>(&mut self, delay: &mut D) -> Result<(), Error<I2C::Error>> {
         self.write_register(BME280_RESET_ADDR, BME280_SOFT_RESET_CMD)?;
         delay.delay_ms(2); // startup time is 2ms
         Ok(())
@@ -304,7 +304,7 @@ where
         Ok(())
     }
 
-    fn configure<D: DelayUs>(&mut self, delay: &mut D) -> Result<(), Error<I2C::Error>> {
+    fn configure<D: DelayNs>(&mut self, delay: &mut D) -> Result<(), Error<I2C::Error>> {
         match self.mode()? {
             SensorMode::Sleep => {}
             _ => self.soft_reset(delay)?,
@@ -342,11 +342,11 @@ where
         }
     }
 
-    fn forced<D: DelayUs>(&mut self, delay: &mut D) -> Result<(), Error<I2C::Error>> {
+    fn forced<D: DelayNs>(&mut self, delay: &mut D) -> Result<(), Error<I2C::Error>> {
         self.set_mode(BME280_FORCED_MODE, delay)
     }
 
-    fn set_mode<D: DelayUs>(&mut self, mode: u8, delay: &mut D) -> Result<(), Error<I2C::Error>> {
+    fn set_mode<D: DelayNs>(&mut self, mode: u8, delay: &mut D) -> Result<(), Error<I2C::Error>> {
         match self.mode()? {
             SensorMode::Sleep => {}
             _ => self.soft_reset(delay)?,
@@ -357,7 +357,7 @@ where
     }
 
     /// Captures and processes sensor data for temperature, pressure, and humidity
-    pub fn measure<D: DelayUs>(&mut self, delay: &mut D) -> Result<Measurements, Error<I2C::Error>> {
+    pub fn measure<D: DelayNs>(&mut self, delay: &mut D) -> Result<Measurements, Error<I2C::Error>> {
         self.forced(delay)?;
         delay.delay_ms(40); // await measurement
         let measurements = self.read_data(BME280_DATA_ADDR)?;
